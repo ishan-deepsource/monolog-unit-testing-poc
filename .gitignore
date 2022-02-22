@@ -17,6 +17,8 @@
 /logs/*
 !/logs/empty
 
+/.phpunit.cache/*
+
 # CakePHP 2
 
 /app/tmp/*
