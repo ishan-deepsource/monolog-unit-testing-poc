@@ -8,12 +8,12 @@ class User
 {
     public function add(Logger $logger): void
     {
-        $logger->info('Info');
+        $logger->info('This is information.', ['data' => ['name' => 'foo bar']]);
 
-        $logger->debug('Debug');
+        $logger->debug('This is debug message.');
 
-        $logger->warning('Warning');
+        $logger->warning('This is warning');
 
-        $logger->error('Error');
+        $logger->error('This is errorrrr....');
     }
 }

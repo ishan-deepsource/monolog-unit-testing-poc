@@ -10,11 +10,12 @@ require __DIR__ . '/../vendor/autoload.php';
 $stream = new Monolog\Handler\StreamHandler('php://stderr', Monolog\Logger::DEBUG);
 // set formatter
 $dateFormat = "Y-m-d H:i:sP";
-$output = "[%datetime%] %level_name%: %message% %context% %extra%\n";
+$output = "[%datetime%] %extra.file%:%extra.line% %level_name%: %message% %context%\n";
 $formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
 $stream->setFormatter($formatter);
 // set logger instance
 $logger = new Monolog\Logger('logger');
 $logger->pushHandler($stream);
+$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(Monolog\Logger::DEBUG));
 
 (new IshanDeepsource\UnitTestingLogs\User)->add($logger);
