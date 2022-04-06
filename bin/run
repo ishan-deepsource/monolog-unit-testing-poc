@@ -3,19 +3,42 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+$constants = [
+    'LOG_DATE_FORMAT' => 'Y-m-d H:i:sP',
+    'LOG_MESSAGE_FORMAT' => "[%datetime%] %extra.file%:%extra.line% %level_name%: %message% %context%\n",
+];
+foreach ($constants as $constantName => $constantValue) {
+    if (! defined($constantName)) {
+        define($constantName, $constantValue);
+    }
+}
+
 /**
- * Setup monolog.
+ * Setup stderr steam handler
  */
 // set stream
 $stream = new Monolog\Handler\StreamHandler('php://stderr', Monolog\Logger::DEBUG);
 // set formatter
-$dateFormat = "Y-m-d H:i:sP";
-$output = "[%datetime%] %extra.file%:%extra.line% %level_name%: %message% %context%\n";
-$formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
-$stream->setFormatter($formatter);
+$stream->setFormatter(
+    new Monolog\Formatter\LineFormatter(LOG_MESSAGE_FORMAT, LOG_DATE_FORMAT)
+);
 // set logger instance
-$logger = new Monolog\Logger('logger');
-$logger->pushHandler($stream);
-$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(Monolog\Logger::DEBUG));
+$stderrLogger = new Monolog\Logger('stderr');
+$stderrLogger->pushHandler($stream);
+$stderrLogger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(Monolog\Logger::DEBUG));
 
-(new IshanDeepsource\UnitTestingLogs\User)->add($logger);
+/**
+ * Setup stderr steam handler
+ */
+// set stream
+$stream = new Monolog\Handler\StreamHandler('php://stdout', Monolog\Logger::DEBUG);
+// set formatter
+$stream->setFormatter(
+    new Monolog\Formatter\LineFormatter(LOG_MESSAGE_FORMAT, LOG_DATE_FORMAT)
+);
+// set logger instance
+$stdoutLogger = new Monolog\Logger('stdout');
+$stdoutLogger->pushHandler($stream);
+$stdoutLogger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(Monolog\Logger::DEBUG));
+
+(new IshanDeepsource\UnitTestingLogs\User)->add($stderrLogger, $stdoutLogger);
