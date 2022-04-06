@@ -3,15 +3,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$constants = [
-    'LOG_DATE_FORMAT' => 'Y-m-d H:i:sP',
-    'LOG_MESSAGE_FORMAT' => "[%datetime%] %extra.file%:%extra.line% %level_name%: %message% %context%\n",
-];
-foreach ($constants as $constantName => $constantValue) {
-    if (! defined($constantName)) {
-        define($constantName, $constantValue);
-    }
-}
+require __DIR__ . '/../config/bootstrap.php';
 
 /**
  * Setup stderr steam handler

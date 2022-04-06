@@ -9,28 +9,45 @@ use IshanDeepsource\UnitTestingLogs\User;
 
 final class UserTest extends TestCase
 {
-    private $stream = null;
+    private $stderrStream = null;
 
-    private $logger = null;
+    private $stdoutStream = null;
+
+    private $stderrLogger = null;
+
+    private $stdoutLogger = null;
 
     protected function setUp(): void
     {
-        $this->stream = new \Monolog\Handler\TestHandler();
+        require __DIR__ . '/../config/bootstrap.php';
+
+        $this->stderrStream = new \Monolog\Handler\TestHandler();
         // set formatter
-        $dateFormat = "Y-m-d H:i:sP";
-        $output = "[%datetime%] %level_name%: %message% %context% %extra%\n";
-        $formatter = new \Monolog\Formatter\LineFormatter($output, $dateFormat);
-        $this->stream->setFormatter($formatter);
+        $formatter = new \Monolog\Formatter\LineFormatter(LOG_MESSAGE_FORMAT, LOG_DATE_FORMAT);
+        $this->stderrStream->setFormatter($formatter);
         // set logger instance
-        $this->logger = new \Monolog\Logger('logger');
-        $this->logger->pushHandler($this->stream);
+        $this->stderrLogger = new \Monolog\Logger('stderr');
+        $this->stderrLogger->pushHandler($this->stderrStream);
+        $this->stderrLogger->pushProcessor(new \Monolog\Processor\IntrospectionProcessor(\Monolog\Logger::DEBUG));
+
+        $this->stdoutStream = new \Monolog\Handler\TestHandler();
+        // set formatter
+        $formatter = new \Monolog\Formatter\LineFormatter(LOG_MESSAGE_FORMAT, LOG_DATE_FORMAT);
+        $this->stdoutStream->setFormatter($formatter);
+        // set logger instance
+        $this->stdoutLogger = new \Monolog\Logger('stdout');
+        $this->stdoutLogger->pushHandler($this->stdoutStream);
+        $this->stdoutLogger->pushProcessor(new \Monolog\Processor\IntrospectionProcessor(\Monolog\Logger::DEBUG));
     }
 
     public function testAdd(): void
     {
-        (new User())->add($this->logger);
+        (new User())->add($this->stderrLogger, $this->stdoutLogger);
 
-        $this->assertTrue($this->stream->hasErrorRecords());
-        $this->assertTrue($this->stream->hasErrorThatContains('Error'));
+        // var_dump(get_class_methods($this->stderrStream));
+        print_r($this->stderrStream->getRecords());
+        print_r($this->stdoutLogger->getRecords());
+        $this->assertTrue($this->stderrStream->hasErrorRecords());
+        $this->assertTrue($this->stderrStream->hasErrorThatContains('Error'));
     }
 }
